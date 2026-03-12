@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Конструктор рецептов</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #fafafa; }
+    .container { max-width: 900px; margin: 0 auto; padding: 18px; }
+    header { padding: 12px 0; }
+    h1 { margin: 0 0 8px; }
+    form { background: #fff; border: 1px solid #ddd; padding: 16px; border-radius: 8px; }
+    .ingredients { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+    .ingredient { display: flex; align-items: center; gap: 8px; }
+    .recipes { margin-top: 24px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; background: #fff; padding: 14px; margin-bottom: 14px; }
+    .card h3 { margin: 0 0 6px; }
+    .card p { margin: 0 0 10px; }
+    .card a { text-decoration: none; color: #2176ff; }
+    .help { margin: 14px 0; font-size: 0.95rem; color: #555; }
+    button { padding: 10px 14px; border: none; border-radius: 6px; background: #2176ff; color: #fff; font-weight: 600; cursor: pointer; }
+    button:hover { background: #1b5ad0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Конструктор рецептов</h1>
+      <p class="help">Отметьте ингредиенты, которые у вас есть, и нажмите «Найти рецепты».</p>
+    </header>
+
+    <form method="get" action="">
+      <div class="ingredients">
+        {% for ingredient in ingredients %}
+          <label class="ingredient">
+            <input type="checkbox" name="ingredients" value="{{ ingredient.id }}" {% if ingredient.id in selected_ids %}checked{% endif %}>
+            {{ ingredient.name }}
+          </label>
+        {% empty %}
+          <p>Ингредиенты ещё не добавлены. Добавьте их через админку.</p>
+        {% endfor %}
+      </div>
+
+      <p style="margin-top: 16px;">
+        <button type="submit">Найти рецепты</button>
+      </p>
+    </form>
+
+    <div class="recipes">
+      {% if recipes %}
+        <h2>Подходящие рецепты</h2>
+        {% for recipe in recipes %}
+          <div class="card">
+            <h3><a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.name }}</a></h3>
+            <p>{{ recipe.description|default:"(без описания)" }}</p>
+            <p style="margin:0;font-size:0.9rem;color:#555;">Ингредиенты: {{ recipe.ingredients.all|join:", " }}</p>
+          </div>
+        {% endfor %}
+      {% elif selected_ids %}
+        <h2>Нет рецептов, полностью соответствующих выбранным ингредиентам.</h2>
+        <p class="help">Попробуйте выбрать меньше ингредиентов или добавьте рецепты/ингредиенты через админку.</p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
