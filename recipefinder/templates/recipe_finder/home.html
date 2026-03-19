@@ -3,9 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <title>Конструктор рецептов</title>
+  {% load static %}
+  <link rel="icon" type="image/png" href="/static/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+  <link rel="shortcut icon" href="/static/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Рецепты" />
+  <link rel="manifest" href="/static/site.webmanifest" />
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #fafafa; }
-    .container { max-width: 900px; margin: 0 auto; padding: 18px; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: url('{% static "background.png" %}') repeat top left fixed; background-size: auto; }
+    .container { max-width: 900px; margin: 0 auto; padding: 18px; background: rgba(250, 250, 250, 0.9); border-radius: 8px; margin-top: 18px; margin-bottom: 18px; }
     header { padding: 12px 0; }
     h1 { margin: 0 0 8px; }
     form { background: #fff; border: 1px solid #ddd; padding: 16px; border-radius: 8px; }
@@ -24,7 +31,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>Конструктор рецептов</h1>
+      <h1>Поиск рецептов</h1>
       <p class="help">Отметьте ингредиенты, которые у вас есть, и нажмите «Найти рецепты».</p>
     </header>
 
@@ -36,7 +43,7 @@
             {{ ingredient.name }}
           </label>
         {% empty %}
-          <p>Ингредиенты ещё не добавлены. Добавьте их через админку.</p>
+          <p>Ингредиенты ещё не добавлены. Попросите администратора добавить ингредиенты.</p>
         {% endfor %}
       </div>
 
@@ -53,6 +60,9 @@
             <h3><a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.name }}</a></h3>
             <p>{{ recipe.description|default:"(без описания)" }}</p>
             <p style="margin:0;font-size:0.9rem;color:#555;">Ингредиенты: {{ recipe.ingredients.all|join:", " }}</p>
+            {% if recipe.missing_ingredients.exists %}
+              <p style="margin:0;font-size:0.9rem;color:#a00;">Нужно докупить: {{ recipe.missing_ingredients.all|join:", " }}</p>
+            {% endif %}
           </div>
         {% endfor %}
       {% elif selected_ids %}

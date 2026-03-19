@@ -10,22 +10,31 @@ def index(request):
 
 
 def home(request):
-    """Главная страница поиска.
-
-    - Показывает все ингредиенты списком чекбоксов.
-    - Если выбран хотя бы один ингредиент, ищет рецепты, которые полностью уместятся в выбранных ингредиентах.
-    """
+    # Главная страница поиска.
+    # - Показывает все ингредиенты списком чекбоксов.
+    # - Если выбран хотя бы один ингредиент, ищет рецепты, которые полностью уместятся в выбранных ингредиентах.
 
     selected_ids = request.GET.getlist('ingredients')
     ingredients = Ingredient.objects.order_by('name')
 
     recipes = []
     if selected_ids:
-        # Жёсткое соответствие: рецепт должен содержать только выбранные ингредиенты.
-        recipes = Recipe.objects.annotate(
-            total_ingredients=Count('ingredients'),
-            matches=Count('ingredients', filter=Q(ingredients__id__in=selected_ids)),
-        ).filter(total_ingredients=F('matches'))
+        # Частичное соответствие: рецепт должен содержать хотя бы один из выбранных
+        # ингредиентов. Дополнительно сортируем по убыванию количества совпадений.
+        recipes = (
+            Recipe.objects
+            .annotate(
+                matches=Count('ingredients', filter=Q(ingredients__id__in=selected_ids)),
+            )
+            .filter(matches__gt=0)
+            .order_by('-matches', 'name')
+        )
+        # добавим для каждого рецепта список дефицитных ингредиентов
+        for recipe in recipes:
+            # вычисляем ингредиенты, которых нет среди выбранных
+            recipe.missing_ingredients = (
+                recipe.ingredients.exclude(id__in=selected_ids)
+            )
 
     return render(request, 'recipe_finder/home.html', {
         'ingredients': ingredients,
