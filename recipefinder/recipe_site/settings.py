@@ -23,12 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&@hqfr2_ku%=f)9%m1$d0g9m&u3ro1^u&(_7c$a-331b+6wwg&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['moiiom.pythonanywhere.com', '127.0.0.1']
 
+# During development, you can instead set just the base URL
+# (you might decide to change the site a few times).
+# ALLOWED_HOSTS = ['.pythonanywhere.com','127.0.0.1']
 
 # Application definition
+
+CSRF_TRUSTED_ORIGINS = ['https://moiiom.pythonanywhere.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
